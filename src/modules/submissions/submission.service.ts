@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { prisma } from "../../config/database.js";
 import { AppError } from "../../utils/errors.js";
 import type { CreateSubmissionInput } from "./submission.schemas.js";
@@ -52,4 +53,85 @@ export const getSubmissionById = async (
   }
 
   return submission;
+};
+
+export const getSubmissionScene = async (
+  submissionId: string,
+  authUser: AuthUser,
+) => {
+  const submission = await prisma.formSubmission.findFirst({
+    where: {
+      id: submissionId,
+      tenantId: authUser.tenantId,
+    },
+    select: {
+      id: true,
+      scene: true,
+    },
+  });
+
+  if (!submission) {
+    throw new AppError(404, "Submission not found");
+  }
+
+  return submission.scene;
+};
+
+export const updateSubmissionScene = async (
+  submissionId: string,
+  scene: Prisma.InputJsonValue,
+  authUser: AuthUser,
+) => {
+  const submission = await prisma.formSubmission.findFirst({
+    where: {
+      id: submissionId,
+      tenantId: authUser.tenantId,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!submission) {
+    throw new AppError(404, "Submission not found");
+  }
+
+  const updatedSubmission = await prisma.formSubmission.update({
+    where: {
+      id: submission.id,
+    },
+    data: {
+      scene,
+    },
+    select: {
+      id: true,
+      scene: true,
+    },
+  });
+
+  return updatedSubmission.scene;
+};
+export const deleteSubmission = async (
+  submissionId: string,
+  authUser: AuthUser,
+) => {
+  const submission = await prisma.formSubmission.findFirst({
+    where: {
+      id: submissionId,
+      tenantId: authUser.tenantId,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!submission) {
+    throw new AppError(404, "Submission not found");
+  }
+
+  await prisma.formSubmission.delete({
+    where: {
+      id: submission.id,
+    },
+  });
 };

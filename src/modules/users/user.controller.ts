@@ -46,3 +46,23 @@ export const getUsers = async (
     next(error);
   }
 };
+export const deleteUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const authUser = getAuthUser(req);
+    const { id } = req.params;
+
+    if (typeof id !== "string") {
+      throw new AppError(400, "User id is required");
+    }
+
+    await userService.deleteUser(id, authUser);
+
+    res.status(204).send();
+  } catch (error) {
+    next(error);
+  }
+};

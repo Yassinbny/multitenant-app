@@ -51,6 +51,7 @@ model FormSubmission {
   accidentTime      String
   licensePlate      String
   damageDescription String
+  scene             Json?
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)

@@ -9,13 +9,14 @@ const router = Router();
 
 router.use(authMiddleware);
 router.use(requireRoles("USER", "ADMIN"));
-
 router.post(
   "/",
   validate(createSubmissionSchema),
   submissionController.createSubmission,
 );
 router.get("/", submissionController.getSubmissions);
+router.get("/:id/scene", submissionController.getSubmissionScene);
+router.put("/:id/scene", submissionController.updateSubmissionScene);
 router.get("/:id", submissionController.getSubmissionById);
-
+router.delete("/:id", submissionController.deleteSubmission);
 export default router;

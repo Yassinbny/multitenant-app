@@ -72,3 +72,73 @@ export const getSubmissionById = async (
     next(error);
   }
 };
+
+export const getSubmissionScene = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const authUser = getAuthUser(req);
+    const { id } = req.params;
+
+    if (typeof id !== "string") {
+      throw new AppError(400, "Submission id is required");
+    }
+
+    const scene = await submissionService.getSubmissionScene(id, authUser);
+
+    res.status(200).json({
+      scene,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateSubmissionScene = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const authUser = getAuthUser(req);
+    const { id } = req.params;
+
+    if (typeof id !== "string") {
+      throw new AppError(400, "Submission id is required");
+    }
+
+    const scene = await submissionService.updateSubmissionScene(
+      id,
+      req.body,
+      authUser,
+    );
+
+    res.status(200).json({
+      scene,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+export const deleteSubmission = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const authUser = getAuthUser(req);
+    const { id } = req.params;
+
+    if (typeof id !== "string") {
+      throw new AppError(400, "Submission id is required");
+    }
+
+    await submissionService.deleteSubmission(id, authUser);
+
+    res.status(204).send();
+  } catch (error) {
+    next(error);
+  }
+};

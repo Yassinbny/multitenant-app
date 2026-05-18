@@ -90,3 +90,28 @@ export const createTenantAdmin = async (
     },
   });
 };
+export const deleteTenant = async (tenantId: string) => {
+  const tenant = await prisma.tenant.findUnique({
+    where: {
+      id: tenantId,
+    },
+    select: {
+      id: true,
+      name: true,
+    },
+  });
+
+  if (!tenant) {
+    throw new AppError(404, "Tenant not found");
+  }
+
+  if (tenant.name === "Platform") {
+    throw new AppError(400, "Platform tenant cannot be deleted");
+  }
+
+  await prisma.tenant.delete({
+    where: {
+      id: tenant.id,
+    },
+  });
+};

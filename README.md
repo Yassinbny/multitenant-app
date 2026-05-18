@@ -1,6 +1,6 @@
 # Multitenant Accident Report API
 
-API REST multi-tenant para gestionar partes de accidente de coche, con autenticacion, autorizacion por roles y aislamiento de datos por tenant.
+API REST multi-tenant para gestionar partes de accidente de coche, con autenticacion, autorizacion por roles, aislamiento de datos por tenant y persistencia de escenas visuales asociadas a cada parte.
 
 ## Stack Tecnologico
 
@@ -148,10 +148,34 @@ Campos principales:
 - `accidentTime`
 - `licensePlate`
 - `damageDescription`
+- `scene`
 - `userId`
 - `tenantId`
 - `createdAt`
 - `updatedAt`
+
+El campo `scene` es opcional y almacena en formato JSON la representacion visual del accidente creada desde el frontend con Konva.
+
+Ejemplo de escena:
+
+```json
+{
+  "elements": [
+    {
+      "id": "element-id",
+      "type": "vehicle",
+      "x": 120,
+      "y": 120,
+      "rotation": 0,
+      "width": 90,
+      "height": 45,
+      "label": "Vehiculo",
+      "color": "#22d3ee",
+      "notes": ""
+    }
+  ]
+}
+```
 
 ## Roles Y Permisos
 
@@ -253,6 +277,8 @@ Requieren rol `USER` o `ADMIN`.
 POST /submissions
 GET  /submissions
 GET  /submissions/:id
+GET  /submissions/:id/scene
+PUT  /submissions/:id/scene
 ```
 
 Crear parte:
@@ -268,6 +294,27 @@ Crear parte:
 }
 ```
 
+Actualizar escena de un parte:
+
+```json
+{
+  "elements": [
+    {
+      "id": "vehicle-1",
+      "type": "vehicle",
+      "x": 120,
+      "y": 120,
+      "rotation": 0,
+      "width": 90,
+      "height": 45,
+      "label": "Vehiculo A",
+      "color": "#22d3ee",
+      "notes": "Vehiculo situado en el carril derecho"
+    }
+  ]
+}
+```
+
 ## Flujo De Uso
 
 1. Ejecutar el seed para crear el `SUPER_ADMIN`.
@@ -278,6 +325,8 @@ Crear parte:
 6. Crear usuarios normales dentro del tenant.
 7. Iniciar sesion como `USER`.
 8. Crear y consultar partes de accidente.
+9. Editar la escena visual asociada a un parte.
+10. Guardar y recuperar la escena como JSON.
 
 ## Aislamiento Multi-Tenant
 
@@ -310,6 +359,44 @@ where: {
 
 Ademas, al consultar un parte por ID se filtra por `id` y `tenantId`. Si el parte existe pero pertenece a otro tenant, la API responde `404`, evitando revelar informacion de otros tenants.
 
+La escena visual tambien queda protegida por el mismo criterio. Los endpoints de escena buscan primero el parte usando:
+
+```ts
+where: {
+  id: submissionId,
+  tenantId: authUser.tenantId
+}
+```
+
+Solo si el parte pertenece al tenant autenticado se permite leer o actualizar su campo `scene`.
+
+## Representacion Visual De Accidentes
+
+El frontend permite representar una escena de accidente usando Konva. La escena se guarda en el backend como JSON dentro del campo `scene` de `FormSubmission`.
+
+El modelo de escena se basa en una lista de elementos:
+
+- `vehicle`: vehiculo.
+- `obstacle`: obstaculo.
+- `road`: carretera o zona de circulacion.
+- `reference`: referencia del entorno.
+- `impactPoint`: punto de impacto.
+
+Cada elemento incluye:
+
+- `id`
+- `type`
+- `x`
+- `y`
+- `rotation`
+- `width`
+- `height`
+- `label`
+- `color`
+- `notes`
+
+Esto permite transformar la interaccion grafica del usuario en datos estructurados persistibles y exportables.
+
 ## Seguridad
 
 - Las contrasenas se almacenan hasheadas con bcrypt.
@@ -319,3 +406,4 @@ Ademas, al consultar un parte por ID se filtra por `id` y `tenantId`. Si el part
 - Los datos de entrada se validan con Zod.
 - Helmet anade headers basicos de seguridad.
 - El backend no devuelve `passwordHash` en las respuestas.
+- Las escenas se asocian a partes existentes y se protegen mediante `tenantId`.

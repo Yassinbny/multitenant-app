@@ -61,3 +61,29 @@ export const getUsers = async (authUser: AuthUser) => {
     },
   });
 };
+export const deleteUser = async (userId: string, authUser: AuthUser) => {
+  if (userId === authUser.userId) {
+    throw new AppError(400, "You cannot delete yourself");
+  }
+
+  const user = await prisma.user.findFirst({
+    where: {
+      id: userId,
+      tenantId: authUser.tenantId,
+      role: UserRole.USER,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!user) {
+    throw new AppError(404, "User not found");
+  }
+
+  await prisma.user.delete({
+    where: {
+      id: user.id,
+    },
+  });
+};

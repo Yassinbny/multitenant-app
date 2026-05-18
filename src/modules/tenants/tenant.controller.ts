@@ -77,3 +77,22 @@ export const createTenantAdmin = async (
     next(error);
   }
 };
+export const deleteTenant = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { id } = req.params;
+
+    if (typeof id !== "string") {
+      throw new AppError(400, "Tenant id is required");
+    }
+
+    await tenantService.deleteTenant(id);
+
+    res.status(204).send();
+  } catch (error) {
+    next(error);
+  }
+};

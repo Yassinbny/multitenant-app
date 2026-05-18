@@ -21,5 +21,6 @@ router.post(
   tenantController.createTenantAdmin,
 );
 router.get("/:id", tenantController.getTenantById);
+router.delete("/:id", tenantController.deleteTenant);
 
 export default router;
