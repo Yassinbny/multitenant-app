@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: multitenant_postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: multitenant_user
+      POSTGRES_PASSWORD: multitenant_password
+      POSTGRES_DB: multitenant_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
