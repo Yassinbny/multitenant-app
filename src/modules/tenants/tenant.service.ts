@@ -27,6 +27,11 @@ export const createTenant = async (input: CreateTenantInput) => {
 
 export const getTenants = async () => {
   return prisma.tenant.findMany({
+    where: {
+      name: {
+        not: "Platform",
+      },
+    },
     orderBy: {
       createdAt: "desc",
     },
