@@ -14,7 +14,7 @@
     "prisma:migrate:deploy": "prisma migrate deploy",
     "prisma:studio": "prisma studio",
     "prisma:seed": "tsx prisma/seed.ts",
-    "start:prod": "prisma migrate deploy && pnpm prisma:seed && node dist/server.js"
+    "start:prod": "prisma migrate deploy && node dist/server.js"
   },
   "keywords": [],
   "author": "",
